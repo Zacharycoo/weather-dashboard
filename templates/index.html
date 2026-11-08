@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Weather Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="theme-{{ theme }}">
+    <div class="weather-atmosphere" aria-hidden="true"></div>
+
+    <!-- Reusable weather icons -->
+    <svg class="svg-library"
+         xmlns="http://www.w3.org/2000/svg"
+         aria-hidden="true">
+        <defs>
+            <symbol id="icon-sun" viewBox="0 0 100 100">
+                <g fill="none" stroke="#ffd32a"
+                   stroke-width="4" stroke-linecap="round">
+                    <circle cx="50" cy="50" r="21" fill="#ffbd0a"/>
+                    <path d="M50 5V17 M50 83V95 M5 50H17 M83 50H95
+                             M18 18L27 27 M73 73L82 82
+                             M82 18L73 27 M27 73L18 82"/>
+                </g>
+            </symbol>
+
+            <symbol id="icon-cloud" viewBox="0 0 120 90">
+                <path d="M29 70 C13 70 10 59 12 48
+                         C14 36 25 31 36 35
+                         C42 13 68 9 81 25
+                         C86 31 88 36 89 41
+                         C105 39 115 50 112 61
+                         C110 68 103 70 94 70 Z"
+                      fill="#6ab8e8"
+                      stroke="#d5f9ff"
+                      stroke-width="3"
+                      stroke-linejoin="round"/>
+                <path d="M29 68 C13 67 13 51 22 43
+                         C31 35 39 41 42 45
+                         C46 27 65 19 78 31"
+                      fill="none"
+                      stroke="#f0ffff"
+                      stroke-opacity=".65"
+                      stroke-width="3"/>
+            </symbol>
+
+            <symbol id="icon-rain" viewBox="0 0 120 120">
+                <use href="#icon-cloud"
+                     x="0" y="-5" width="120" height="90"/>
+                <g stroke="#00eaff"
+                   stroke-width="5"
+                   stroke-linecap="round">
+                    <path d="M35 78L26 99
+                             M60 78L51 99
+                             M85 78L76 99"/>
+                </g>
+            </symbol>
+
+            <symbol id="icon-snow" viewBox="0 0 120 120">
+                <use href="#icon-cloud"
+                     x="0" y="-7" width="120" height="90"/>
+                <g stroke="#b8f6ff"
+                   stroke-width="3"
+                   stroke-linecap="round">
+                    <path d="M32 82V104 M21 93H43
+                             M24 85L40 101 M40 85L24 101"/>
+                    <path d="M84 82V104 M73 93H95
+                             M76 85L92 101 M92 85L76 101"/>
+                </g>
+            </symbol>
+
+            <symbol id="icon-partly-cloudy" viewBox="0 0 120 100">
+                <use href="#icon-sun"
+                     x="0" y="0" width="65" height="65"/>
+                <use href="#icon-cloud"
+                     x="23" y="20" width="97" height="75"/>
+            </symbol>
+
+            <symbol id="icon-storm" viewBox="0 0 120 120">
+                <use href="#icon-cloud"
+                     x="0" y="-5" width="120" height="90"/>
+                <path d="M62 72L48 94H61L52 115
+                         L83 84H67L75 72Z"
+                      fill="#ffdc4d"
+                      stroke="#fff3ad"
+                      stroke-width="2"/>
+            </symbol>
+
+            <symbol id="icon-wind" viewBox="0 0 100 100">
+                <g fill="none"
+                   stroke="#00eaff"
+                   stroke-width="6"
+                   stroke-linecap="round">
+                    <path d="M10 35H65 Q86 35 81 19 Q77 8 66 15"/>
+                    <path d="M10 50H87"/>
+                    <path d="M10 65H60 Q79 65 75 82 Q71 91 61 85"/>
+                </g>
+            </symbol>
+
+            <symbol id="icon-calendar" viewBox="0 0 100 100">
+                <g fill="none"
+                   stroke="#00eaff"
+                   stroke-width="6"
+                   stroke-linejoin="round"
+                   stroke-linecap="round">
+                    <rect x="13" y="22"
+                          width="74" height="65" rx="5"/>
+                    <path d="M13 42H87 M32 12V32 M68 12V32"/>
+                </g>
+            </symbol>
+
+            <symbol id="icon-drop" viewBox="0 0 40 50">
+                <path d="M20 4 C15 13 7 23 7 31
+                         A13 13 0 0 0 33 31
+                         C33 23 25 13 20 4Z"
+                      fill="none"
+                      stroke="#00eaff"
+                      stroke-width="4"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <div class="dashboard">
+
+        <!-- Header -->
+        <header>
+            <h1>
+                <svg class="header-weather-icon"
+                     viewBox="0 0 120 120">
+                    <use href="#icon-{{ current_icon }}"
+                         width="120" height="120"></use>
+                </svg>
+                Weather <span class="accent">Dashboard</span>
+            </h1>
+
+            <p>Check the weather in your city</p>
+        </header>
+
+        <!-- Search -->
+        <div class="search-container">
+            <form action="/" method="GET"
+                  autocomplete="off" id="weather-form">
+
+                <div class="autocomplete-wrapper">
+                    <input type="text"
+                           id="city-search"
+                           name="city"
+                           placeholder="Search city or state..."
+                           aria-label="Search city or state"
+                           required>
+
+                    <input type="hidden"
+                           name="latitude"
+                           id="selected-latitude"
+                           disabled>
+
+                    <input type="hidden"
+                           name="longitude"
+                           id="selected-longitude"
+                           disabled>
+
+                    <input type="hidden"
+                           name="state"
+                           id="selected-state"
+                           disabled>
+
+                    <div id="autocomplete-results"></div>
+                </div>
+
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <!-- Current weather -->
+        <section class="current-weather">
+            <div class="weather-main">
+
+                <div class="weather-summary">
+                    <h2>{{ city }}</h2>
+                    <h3>{{ weather.temperature_2m }}°F</h3>
+                    <p class="condition">{{ description }}</p>
+
+                    <p class="humidity">
+                        <svg class="drop-icon"
+                             viewBox="0 0 40 50">
+                            <use href="#icon-drop"
+                                 width="40" height="50"></use>
+                        </svg>
+                        Humidity: {{ weather.relative_humidity_2m }}%
+                    </p>
+                </div>
+
+                <!-- Large main weather icon -->
+                <svg class="current-weather-icon"
+                     viewBox="0 0 120 120"
+                     role="img"
+                     aria-label="{{ description }}">
+                    <use href="#icon-{{ current_icon }}"
+                         width="120" height="120"></use>
+                </svg>
+
+                <!-- Wind -->
+                <div class="wind-panel">
+                    <svg class="wind-symbol"
+                         viewBox="0 0 100 100"
+                         aria-hidden="true">
+                        <use href="#icon-wind"
+                             width="100" height="100"></use>
+                    </svg>
+
+                    <span>Wind</span>
+                    <strong>{{ weather.wind_speed_10m }} mph</strong>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Five-day forecast -->
+        <section class="forecast">
+            <h2>
+                <svg class="calendar-icon"
+                     viewBox="0 0 100 100"
+                     aria-hidden="true">
+                    <use href="#icon-calendar"
+                         width="100" height="100"></use>
+                </svg>
+                5-Day Forecast
+            </h2>
+
+            <div class="forecast-container">
+                {% for i in range(5) %}
+
+                <div class="forecast-day">
+                    <h3>{{ forecast.days[i] }}</h3>
+
+                    <svg class="forecast-icon"
+                         viewBox="0 0 120 120"
+                         role="img"
+                         aria-label="{{ forecast.descriptions[i] }}">
+                        <use href="#icon-{{ forecast.icons[i] }}"
+                             width="120" height="120"></use>
+                    </svg>
+
+                    <p class="forecast-condition">
+                        {{ forecast.descriptions[i] }}
+                    </p>
+
+                    <div class="forecast-temps">
+                        <p>
+                            High:
+                            <strong>{{ forecast.temperature_2m_max[i] }}°F</strong>
+                        </p>
+                        <p>
+                            Low:
+                            <strong>{{ forecast.temperature_2m_min[i] }}°F</strong>
+                        </p>
+                    </div>
+                </div>
+
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+
+    <!-- City and state autocomplete -->
+    <script>
+        const searchInput = document.getElementById("city-search");
+        const results = document.getElementById("autocomplete-results");
+        const form = document.getElementById("weather-form");
+
+        const latitudeInput = document.getElementById("selected-latitude");
+        const longitudeInput = document.getElementById("selected-longitude");
+        const stateInput = document.getElementById("selected-state");
+
+        let searchTimeout;
+        let selectedState = "";
+        let selectedCity = false;
+        let requestNumber = 0;
+
+        function clearSelection() {
+            selectedCity = false;
+            latitudeInput.disabled = true;
+            longitudeInput.disabled = true;
+            stateInput.disabled = true;
+            searchInput.setCustomValidity("");
+        }
+
+        function selectCity(location) {
+            clearTimeout(searchTimeout);
+            requestNumber++;
+            clearSelection();
+
+            selectedCity = true;
+            selectedState = "";
+
+            searchInput.value = [
+                location.name,
+                location.state,
+                location.country
+            ].filter(Boolean).join(", ");
+
+            searchInput.placeholder = "Search city or state...";
+
+            latitudeInput.value = location.latitude;
+            longitudeInput.value = location.longitude;
+            stateInput.value = location.state || "";
+
+            latitudeInput.disabled = false;
+            longitudeInput.disabled = false;
+            stateInput.disabled = false;
+
+            results.replaceChildren();
+        }
+
+        function makeOption(label, callback) {
+            const option = document.createElement("div");
+            option.className = "autocomplete-option";
+            option.textContent = label;
+            option.addEventListener("click", callback);
+            results.appendChild(option);
+        }
+
+        async function selectState(state) {
+            clearTimeout(searchTimeout);
+            requestNumber++;
+
+            const currentRequest = requestNumber;
+            selectedState = state;
+            clearSelection();
+
+            searchInput.value = "";
+            searchInput.placeholder = `Enter a city in ${state}...`;
+            results.replaceChildren();
+            searchInput.focus();
+
+            try {
+                const response = await fetch(
+                    `/state-cities?state=${encodeURIComponent(state)}`
+                );
+
+                if (!response.ok) return;
+
+                const cities = await response.json();
+                if (currentRequest !== requestNumber) return;
+
+                results.replaceChildren();
+
+                cities.forEach(city => {
+                    makeOption(`${city}, ${state}`, async () => {
+                        clearTimeout(searchTimeout);
+                        requestNumber++;
+
+                        const cityRequest = requestNumber;
+                        results.replaceChildren();
+                        searchInput.value = city;
+
+                        try {
+                            const url =
+                                `/autocomplete?q=${encodeURIComponent(city)}` +
+                                `&state=${encodeURIComponent(state)}`;
+
+                            const geoResponse = await fetch(url);
+
+                            if (!geoResponse.ok) {
+                                throw new Error("Lookup failed");
+                            }
+
+                            const locations = await geoResponse.json();
+
+                            if (cityRequest !== requestNumber) return;
+
+                            const match = locations.find(item =>
+                                item.type === "city" &&
+                                item.name.toLowerCase() === city.toLowerCase() &&
+                                item.state.toLowerCase() === state.toLowerCase()
+                            );
+
+                            if (match) {
+                                selectCity(match);
+                            } else {
+                                searchInput.setCustomValidity(
+                                    "City not found. Please type another city."
+                                );
+                                searchInput.reportValidity();
+                            }
+
+                        } catch (error) {
+                            console.error(error);
+
+                            searchInput.setCustomValidity(
+                                "Unable to find this city."
+                            );
+
+                            searchInput.reportValidity();
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error("State cities error:", error);
+            }
+        }
+
+        searchInput.addEventListener("input", () => {
+            clearTimeout(searchTimeout);
+            requestNumber++;
+            clearSelection();
+
+            const query = searchInput.value.trim();
+            results.replaceChildren();
+
+            if (query.length < 2) return;
+
+            const currentRequest = requestNumber;
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    let url =
+                        `/autocomplete?q=${encodeURIComponent(query)}`;
+
+                    if (selectedState) {
+                        url += `&state=${encodeURIComponent(selectedState)}`;
+                    }
+
+                    const response = await fetch(url);
+
+                    if (!response.ok) return;
+
+                    const locations = await response.json();
+
+                    if (currentRequest !== requestNumber) return;
+
+                    results.replaceChildren();
+
+                    locations.forEach(location => {
+                        const label = [
+                            location.name,
+                            location.state,
+                            location.country
+                        ].filter(Boolean).join(", ");
+
+                        makeOption(label, () => {
+                            if (location.type === "state") {
+                                selectState(location.name);
+                            } else {
+                                selectCity(location);
+                            }
+                        });
+                    });
+
+                } catch (error) {
+                    console.error("Autocomplete error:", error);
+                }
+            }, 300);
+        });
+
+        form.addEventListener("submit", event => {
+            if (selectedState && !selectedCity) {
+                event.preventDefault();
+
+                searchInput.setCustomValidity(
+                    "Please select a city from the suggestions."
+                );
+
+                searchInput.reportValidity();
+            }
+        });
+
+        document.addEventListener("click", event => {
+            if (!event.target.closest(".autocomplete-wrapper")) {
+                results.replaceChildren();
+            }
+        });
+    </script>
+</body>
+</html>

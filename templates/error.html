@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ title }} | Weather Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="theme-{{ theme }}">
+    <div class="weather-atmosphere" aria-hidden="true"></div>
+
+    <main class="error-page">
+
+        <div class="error-card">
+
+            <!-- Cloud warning icon -->
+            <svg class="error-cloud-icon"
+                 viewBox="0 0 100 100"
+                 role="img"
+                 aria-label="Weather warning">
+
+                <path d="M25 72
+                         C12 72 8 63 10 53
+                         C12 43 20 39 29 41
+                         C34 22 51 17 64 25
+                         C71 29 75 36 76 43
+                         C88 42 96 51 94 61
+                         C92 69 85 72 76 72 Z"
+                      fill="none"
+                      stroke="#00dfff"
+                      stroke-width="4"
+                      stroke-linejoin="round"/>
+
+                <path d="M51 38V55"
+                      stroke="#00dfff"
+                      stroke-width="5"
+                      stroke-linecap="round"/>
+
+                <circle cx="51" cy="64" r="3"
+                        fill="#00dfff"/>
+            </svg>
+
+            <h1>{{ title }}</h1>
+
+            <p class="error-message">
+                {{ message }}
+            </p>
+
+            {% if suggestion %}
+
+            <h2>Did you mean {{ suggestion.name }}, {{ suggestion.state }}?</h2>
+
+            <div class="error-suggestion">
+                <svg viewBox="0 0 24 24"
+                     width="22" height="22"
+                     fill="none"
+                     stroke="#00dfff"
+                     stroke-width="2"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     aria-hidden="true">
+                    <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/>
+                    <circle cx="12" cy="10" r="2.5"/>
+                </svg>
+
+                <span>
+                    {{ suggestion.name }}, {{ suggestion.state }}
+                </span>
+            </div>
+
+            {% else %}
+
+            <p class="error-help">
+                Please check the spelling or try another city.
+            </p>
+
+            {% endif %}
+
+            <div class="error-actions">
+
+                {% if suggestion %}
+                <a class="error-search-button"
+                   href="{{ suggestion.url }}">
+                    Search This City
+                </a>
+                {% endif %}
+
+                <a class="error-home-button"
+                   href="{{ url_for('home') }}">
+                    Back to Home
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+</body>
+</html>
