@@ -52,9 +52,9 @@ Try the Weather Dashboard online:
 
 ![City Not Found](screenshots/CityNotFound.png)
 
-### City Not Found With MissSpelling Page
+### City Not Found With Misspelling Page
 
-![City Not Found MissSpelling Page](screenshots/CityNotFoundWithMissSpelling.png)
+![City Not Found Misspelling Page](screenshots/CityNotFoundWithMissSpelling.png)
 
 ### Mobile View
 
