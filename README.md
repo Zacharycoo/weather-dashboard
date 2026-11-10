@@ -38,13 +38,11 @@ Try the Weather Dashboard online:
 
 ### Weather Dashboard
 
-![Weather Dashboard](screenshots/Homepage.png)
+![Weather Dashboard](screenshots/HomePage.png)
 
 ### Weather Dashboard Showing Autocomplete
 
 ![Weather Dashboard Autocomplete](screenshots/HomePageShowingAutocomplete.png)
-
-![Weather Conditions](screenshots/weather-conditions.png)
 
 ### Additional Weather Conditions
 
