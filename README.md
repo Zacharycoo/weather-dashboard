@@ -4,6 +4,12 @@ A responsive weather dashboard built with Python, Flask, HTML, CSS, and JavaScri
 
 The dashboard features dynamic weather-themed backgrounds, interactive city search, custom weather icons, and a responsive interface designed for desktop, tablet, and mobile devices.
 
+## Live Demo
+
+Try the Weather Dashboard online:
+
+[Launch Weather Dashboard](https://weather-dashboard-n5no.onrender.com)
+
 ## Features
 
 - **Current Weather:** Displays temperature, weather conditions, humidity, and wind speed.
